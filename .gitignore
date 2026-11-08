@@ -28,3 +28,7 @@ Thumbs.db
 .playwright/*
 !.playwright/cli.config.json
 .playwright-cli/
+
+# Playwright test output
+playwright-report/
+test-results/

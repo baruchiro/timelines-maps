@@ -3,47 +3,6 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with
 code in this repository.
 
-> **This is a vibe-coding template.** The sections under
-> [Project-specific](#project-specific-fill-these-in) are placeholders — fill
-> them in for your project and delete the `FILL IN` notes. Everything under
-> [How we work](#how-we-work-portable-defaults) is portable process that should
-> carry across projects unchanged. See `README.md` for setup.
-
----
-
-## First run — the project is still empty
-
-**Read this before writing any code in a fresh clone.** You can tell the
-template hasn't been made into a real project yet when *any* of these are true:
-
-- `CLAUDE.md` still contains `<!-- FILL IN -->` placeholders under
-  [Project-specific](#project-specific-fill-these-in),
-- `STORIES.md` still contains the `CORE-1` / `CORE-2` example stories,
-- `tests/example.test.mjs` still exists.
-
-In that state, **do not jump into building features.** Plan the project first.
-Invoke the `/plan-project` skill (`.claude/skills/plan-project/SKILL.md`). It
-orchestrates the bundled `brainstorming` and `writing-plans` skills (from the
-[`obra/superpowers`](https://github.com/obra/superpowers) collection) and turns
-the user's idea into a real starting point:
-
-1. Clarify the idea — problem, users, the one constraint that matters, what
-   "done enough to ship" looks like.
-2. After clarifying requirements, get approval for the **smallest sufficient
-   implementation form** — skill with scripts, local MCP, a combination, or an
-   application — before locking the stack. Justify a remote server and a custom
-   UI separately. Fill in the `Project-specific` sections of this file and
-   delete the `FILL IN` notes; mark unnecessary components as not applicable.
-3. Draft the **initial stories** and get them approved (stories are
-   approval-gated — see below), then replace the `CORE-*` examples in
-   `STORIES.md`. Mark not-yet-built ones `<!-- @unimplemented -->`.
-4. Point `/ship` and `.github/workflows/ci.yml` at the stack's real commands
-   (keep the `node scripts/check-stories.mjs` step).
-5. Pick the **first vertical slice** and hand off to implement it test-first.
-
-Delete `tests/example.test.mjs` once real tests exist, and delete this whole
-"First run" section once the project is underway.
-
 ---
 
 ## How we work (portable defaults)
@@ -204,52 +163,67 @@ When picking up a GitHub issue, do these **before writing any code**:
 
 ---
 
-## Project-specific (fill these in)
-
-<!-- FILL IN: replace each placeholder below and delete these notes. -->
+## Project-specific
 
 ### Project purpose
 
-<!-- FILL IN: one or two paragraphs — what this project is, who it's for, and
-     the key constraint or gap it exists to close. -->
+Timelines map: a world map plus a zoomable timeline. Pick one or more curated
+layers of historical events, zoom/drag through time, and see what happened
+where. Hebrew UI (RTL), mobile-first. Design spec:
+`docs/superpowers/specs/2026-11-08-timelines-map-design.md`.
+
+**Implementation form (owner-approved): static web app only.**
+- Custom UI: required — the interactive map + timeline *is* the product.
+- Remote server: not needed — data is JSON files in the repo, no users, sharing is via the URL.
+- Skill/MCP: not sufficient for viewers. A layer-authoring skill may come later.
 
 ### Stack (locked)
 
-<!-- FILL IN: pin your runtime, framework, language, data layer, styling, test
-     runner, and lint/format tools with versions. State the rule: versions are
-     pinned — do not introduce parallel libraries (e.g. don't add a second HTTP
-     client or date library). -->
-
-<!-- FILL IN: record the approved implementation form and why it is sufficient.
-     Record whether a new remote server and custom UI are needed, with a
-     requirement-based reason for each. For MCP, record why the protocol layer
-     is needed instead of scripts alone. Mark absent components not applicable;
-     do not add infrastructure to satisfy these placeholders. -->
+- Vite 8 + TypeScript 5 + React 19.
+- MapLibre GL JS 5 (WebGL map; real-km circles via `src/lib/geo.ts`).
+- Basemap: `world-atlas` 110m countries bundled into the app — no tile server, no API key.
+- Timeline: custom component on `d3-scale` + `d3-zoom`; own date model (`src/lib/dates.ts`) — never JS `Date` (BCE / no year 0).
+- Vitest (unit), Playwright 1.63 (browser, 375×667), ESLint 9 + typescript-eslint.
+- Hosting: GitHub Pages via `.github/workflows/deploy.yml` (on push to `master`).
+- Not applicable: database, backend, auth, formatter.
 
 ### File layout
 
-<!-- FILL IN: a short tree of the important directories and what lives where. -->
+- `data/layers/*.json` — one file per layer (the content). Validated by `src/lib/schema.ts`.
+- `src/lib/` — pure logic + unit tests: dates/ticks, schema, event filtering, URL state, geo.
+- `src/components/` — `MapView`, `Timeline`, `LayerPanel`, `EventCard`.
+- `src/App.tsx` — state (selected layers, time window, map view, selected event) + URL sync.
+- `e2e/` — Playwright specs, tagged with `@story:`.
+
+### Adding a layer
+
+Drop a JSON file into `data/layers/` (shape: `src/lib/types.ts`). Dates are
+`{ year, month?, day? }`, negative year = BCE, year 0 is invalid. `radiusKm`
+is optional (no radius → a dot). `npm test` rejects invalid files.
 
 ### Commands
 
-<!-- FILL IN: the commands a contributor actually runs. Keep the gate commands
-     (typecheck / lint / test / story-coverage) accurate — /ship and CI depend
-     on them. -->
-
 | Purpose | Command |
 |---|---|
-| Dev server | `<fill in>` |
-| Typecheck | `<fill in>` |
-| Lint | `<fill in>` |
-| Tests | `<fill in>` |
+| Dev server | `npm run dev` (http://localhost:5173) |
+| Typecheck | `npm run typecheck` |
+| Lint | `npm run lint` |
+| Tests | `npm test` (unit), `npm run e2e` (browser; needs a fresh `npm run build`) |
 | Story coverage | `node scripts/check-stories.mjs` |
-| Build | `<fill in>` |
+| Build | `npm run build` → `dist/` |
+| Everything | `npm run check` |
 
 ### Environment variables
 
-<!-- FILL IN: where env vars are defined/validated, and the add-a-var checklist.
-     Keep `.env` gitignored and `.env.example` committed. -->
+None.
 
 ### First-time setup (fresh checkout)
 
-<!-- FILL IN: the numbered steps to go from clone to running locally. -->
+```sh
+npm ci
+npx playwright install chromium   # skip where a browser is preinstalled
+npm run check
+```
+
+In Claude Code on the web, Chromium is preinstalled and `@playwright/test`
+is pinned to the matching version (1.63), so no browser download is needed.

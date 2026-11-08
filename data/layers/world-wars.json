@@ -1,0 +1,28 @@
+{
+  "id": "world-wars",
+  "name": "מלחמות העולם",
+  "creator": "ModernHistorian",
+  "events": [
+    {
+      "id": "ww1",
+      "name": "מלחמת העולם הראשונה",
+      "description": "עימות עולמי שפרץ באירופה, בין שתי בריתות של המעצמות הגדולות.",
+      "lat": 50.5039, "lng": 4.4699, "radiusKm": 900,
+      "start": { "year": 1914, "month": 7, "day": 28 }, "end": { "year": 1918, "month": 11, "day": 11 }
+    },
+    {
+      "id": "ww2-europe",
+      "name": "מלחמת העולם השנייה – אירופה",
+      "description": "זירת הלחימה המרכזית באירופה, עם קרבות ברחבי היבשת.",
+      "lat": 52.52, "lng": 13.405, "radiusKm": 1500,
+      "start": { "year": 1939, "month": 9, "day": 1 }, "end": { "year": 1945, "month": 5, "day": 8 }
+    },
+    {
+      "id": "ww2-pacific",
+      "name": "מלחמת העולם השנייה – האוקיינוס השקט",
+      "description": "המלחמה באסיה, באוקיינוס השקט ובאוקיינוס ההודי.",
+      "lat": 35.6762, "lng": 139.6503, "radiusKm": 2500,
+      "start": { "year": 1941, "month": 12, "day": 7 }, "end": { "year": 1945, "month": 9, "day": 2 }
+    }
+  ]
+}

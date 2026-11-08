@@ -12,8 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Story-coverage gate. Works out of the box — needs only Node, no install.
-  # Keep this job; it enforces STORIES.md coverage (see CLAUDE.md).
+  # Story-coverage gate. Needs only Node, no install. Keep this job (see CLAUDE.md).
   stories:
     runs-on: ubuntu-latest
     steps:
@@ -24,18 +23,18 @@ jobs:
       - name: Story coverage
         run: node scripts/check-stories.mjs
 
-  # FILL IN: the rest of your gate. Mirror the /ship sequence and the Commands
-  # table in CLAUDE.md. Example for a Node project (uncomment + adjust):
-  #
-  # verify:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: actions/setup-node@v4
-  #       with:
-  #         node-version-file: ".node-version"
-  #         cache: "npm"
-  #     - run: npm ci
-  #     - run: npm run check      # typecheck + lint + story coverage
-  #     - run: npm test
-  #     - run: npm run build
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".node-version"
+          cache: "npm"
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run e2e

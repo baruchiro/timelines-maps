@@ -6,32 +6,62 @@
 > around. See `CLAUDE.md` § "Stories workflow" for the test-coverage rule.
 
 <!--
-  How this file works
-  ===================
   - Each story is a `## PREFIX-N — Short title` heading followed by a
-    user-story paragraph ("As a ..., I want ..., so that ...").
-  - PREFIX groups a feature area (CORE, AUTH, INBOX, ...); N is sequential
-    within the prefix. IDs are permanent — don't renumber.
-  - Every story needs at least one test tagged with its ID:
-        // @story: CORE-1
-    `node scripts/check-stories.mjs` fails the build if any story is uncovered
-    or a test references an unknown ID.
-  - To record a story before it's built, add `<!-- @unimplemented -->` inside
-    its section; the gate exempts it until you remove the marker in the same
-    change that adds the real tagged tests.
-  - Delete the example below once you have real stories.
+    user-story paragraph.
+  - IDs are permanent — don't renumber.
+  - Every story needs at least one test tagged `// @story: PREFIX-N`.
+  - `<!-- @unimplemented -->` inside a section exempts it until built.
 -->
 
-## CORE-1 — Example story (replace me)
+## DATA-1 — קבצי שכבה נבדקים
 
-As a user of this template, I want a first story to exist so that the
-story-coverage gate has something to check and I can see the workflow end to
-end, so that adding my own stories is copy-paste from here.
+כמי שכותב שכבות, אני רוצה שקובץ שכבה עם שדה חסר, תאריך לא חוקי (כולל שנת 0)
+או קואורדינטות מחוץ לטווח יכשיל את הבדיקות, כדי שטעות בנתונים לא תגיע לאתר.
 
-## CORE-2 — Example unimplemented story (replace me)
+## MAP-1 — מפת עולם שאפשר להזיז ולהגדיל
 
-<!-- @unimplemented -->
+כמשתמש, אני רוצה לראות מפת עולם עם גבולות מדינות, ולהזיז ולהגדיל אותה במגע
+ובעכבר, כדי לחקור כל אזור.
 
-As a maintainer, I want to record a planned-but-unbuilt story without a
-placeholder test, so that the roadmap lives in the same file as shipped
-behavior without breaking the coverage gate.
+## MAP-2 — אירועים בחלון הזמן מוצגים על המפה
+
+כמשתמש, אני רוצה שכל אירוע שחופף לתקופה הנראית בציר הזמן יוצג על המפה כעיגול
+בגודל השטח שלו בק"מ (או נקודה אם אין רדיוס), עם השם שלו מעליו, כדי לראות מה קרה
+איפה באותה תקופה.
+
+## MAP-3 — פרטי אירוע בהקשה
+
+כמשתמש, אני רוצה להקיש על אירוע ולראות כרטיס עם השם, טווח התאריכים והתיאור,
+ולסגור אותו ב-✕. הכרטיס ייסגר מעצמו כשהאירוע יוצא מהתקופה הנראית, כדי לקרוא עוד
+בלי לאבד את ההקשר.
+
+## MAP-4 — מצב ריק
+
+כמשתמש, כשאין אירועים בתקופה הנראית, אני רוצה לראות הודעה ולקפוץ לאירוע הקרוב,
+כדי לא להיתקע מול מפה ריקה.
+
+## TIME-1 — ציר זמן עם זום
+
+כמשתמש, אני רוצה רצועת ציר זמן שאפשר לגרור כדי לזוז בזמן, ולעשות בה pinch או
+גלילה כדי לצלול מאלפי שנים עד חודשים, עם תוויות "לפנה"ס/לספירה" ובלי שנת 0, כדי
+לנווט בכל קנה מידה.
+
+## TIME-2 — הציר נפתח על הטווח של השכבות
+
+כמשתמש, אני רוצה שהציר ייפתח על הטווח המלא של השכבות שנבחרו, ויסמן עליו בצבע
+כל שכבה איפה יש אירועים, כדי לדעת לאן לצלול.
+
+## LAYER-1 — נוחתים עם שכבה טעונה
+
+כמשתמש, אני רוצה שבפתיחת האתר כבר תהיה שכבה טעונה, כדי שהמפה לא תהיה ריקה.
+
+## LAYER-2 — בחירת כמה שכבות, צבע לכל אחת
+
+כמשתמש, אני רוצה לסמן ולבטל שכבות מתוך רשימה (בטלפון מכפתור "שכבות", בדסקטופ
+בפאנל צד), ולראות כמה במקביל, כל אחת בצבע משלה ועם קרדיט ליוצר, כדי להשוות בין
+צירי זמן.
+
+## SHARE-1 — התצוגה נשמרת בקישור
+
+כמשתמש, אני רוצה שהשכבות, תקופת הזמן ומיקום המפה יישמרו בכתובת, ושפתיחת הקישור
+תשחזר את אותה תצוגה, כדי לשתף תצוגה מסוימת.
