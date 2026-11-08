@@ -42,8 +42,8 @@ export function encodeState(s: ViewState): string {
   const parts: string[] = [];
   if (s.layers) parts.push(`layers=${s.layers.join(",")}`);
   if (s.window) {
-    // 4 decimals of a year ≈ 1 hour: enough that a shared link shows the same events.
-    parts.push(`t=${round(s.window[0], 4)},${round(s.window[1], 4)}`);
+    // Exact (shortest round-trip) values: any rounding can flip an event at the window's edge.
+    parts.push(`t=${s.window[0]},${s.window[1]}`);
   }
   if (s.map) parts.push(`map=${round(s.map.lat, 5)},${round(s.map.lng, 5)},${round(s.map.zoom, 2)}`);
   return parts.length ? `?${parts.join("&")}` : "";

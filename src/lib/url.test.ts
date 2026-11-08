@@ -1,5 +1,6 @@
 // @story: SHARE-1
 import { describe, expect, it } from "vitest";
+import { placeEvents, visibleEvents } from "./events";
 import { decodeState, encodeState } from "./url";
 
 describe("view state in the URL", () => {
@@ -21,5 +22,15 @@ describe("view state in the URL", () => {
   it("keeps enough precision that a link shows the same thing", () => {
     const s = { window: [1900, 1914.58] as [number, number], map: { lat: 48.0049, lng: 10.0049, zoom: 18 } };
     expect(decodeState(encodeState(s))).toEqual(s);
+  });
+
+  it("keeps the window exact, so an event just past its edge stays hidden", () => {
+    const [ww1] = placeEvents([
+      { id: "w", name: "W", creator: "c", color: "#000000", events: [{ id: "ww1", name: "WW1", lat: 0, lng: 0, start: { year: 1914, month: 7, day: 28 } }] },
+    ]);
+    const window: [number, number] = [1900, ww1.t0 - 1e-5];
+    const restored = decodeState(encodeState({ window })).window!;
+    expect(restored).toEqual(window);
+    expect(visibleEvents([ww1], restored)).toEqual([]);
   });
 });
