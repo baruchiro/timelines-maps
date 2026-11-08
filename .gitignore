@@ -32,3 +32,4 @@ Thumbs.db
 # Playwright test output
 playwright-report/
 test-results/
+*.tsbuildinfo
