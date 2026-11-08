@@ -13,6 +13,12 @@ const valid = () => ({
 
 describe("layer files", () => {
   const dir = join(__dirname, "../../data/layers");
+  it("have unique layer ids", () => {
+    const ids = readdirSync(dir)
+      .filter((f) => f.endsWith(".json"))
+      .map((f) => JSON.parse(readFileSync(join(dir, f), "utf8")).id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
   for (const file of readdirSync(dir).filter((f) => f.endsWith(".json"))) {
     it(`${file} is valid`, () => {
       expect(validateLayer(JSON.parse(readFileSync(join(dir, file), "utf8")), file)).toEqual([]);
@@ -40,6 +46,15 @@ describe("validateLayer rejects", () => {
     const errors = validateLayer(l).join();
     expect(errors).toMatch(/start\.month/);
     expect(errors).toMatch(/end\.day/);
+  });
+
+  it("a day that does not exist in its month", () => {
+    const l = valid();
+    delete (l.events[0] as { end?: unknown }).end;
+    l.events[0].start = { year: 1944, month: 2, day: 31 } as never;
+    expect(validateLayer(l).join()).toMatch(/start\.day/);
+    l.events[0].start = { year: 1944, month: 2, day: 29 } as never;
+    expect(validateLayer(l)).toEqual([]);
   });
 
   it("coordinates out of range", () => {

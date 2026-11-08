@@ -170,7 +170,11 @@ export function MapView({ events, initialView, initialFit, selectedKey, onSelect
     });
     map.on("move", () => declutter(labelsRef.current));
 
+    const labels = labelsRef.current;
     return () => {
+      // StrictMode re-runs this effect: drop labels so the next map recreates them.
+      labels.forEach((l) => l.marker.remove());
+      labels.clear();
       map.remove();
       mapRef.current = null;
       loadedRef.current = false;

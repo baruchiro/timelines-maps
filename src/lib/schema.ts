@@ -8,6 +8,13 @@ const isStr = (v: unknown): v is string => typeof v === "string" && v.trim() !==
 const isNum = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
 const ID_RE = /^[a-z0-9][a-z0-9-]*$/;
 
+// Proleptic Gregorian, astronomical leap rule (1 BCE is a leap year).
+function daysIn(year: number, month: number): number {
+  const y = year < 0 ? year + 1 : year;
+  const leap = (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+  return [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1] ?? 31;
+}
+
 function checkDate(v: unknown, where: string, errors: string[]): v is HDate {
   if (!isObj(v)) {
     errors.push(`${where}: חסר תאריך`);
@@ -27,8 +34,8 @@ function checkDate(v: unknown, where: string, errors: string[]): v is HDate {
     if (month === undefined) {
       errors.push(`${where}.day: יום בלי חודש`);
       ok = false;
-    } else if (!(Number.isInteger(day) && (day as number) >= 1 && (day as number) <= 31)) {
-      errors.push(`${where}.day: חייב להיות 1–31`);
+    } else if (!(Number.isInteger(day) && (day as number) >= 1 && (day as number) <= daysIn(year as number, month as number))) {
+      errors.push(`${where}.day: אין יום כזה בחודש`);
       ok = false;
     }
   }

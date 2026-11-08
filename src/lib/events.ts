@@ -55,6 +55,16 @@ export function nearestEvent(events: PlacedEvent[], [a, b]: TimeWindow): PlacedE
   return best;
 }
 
+/** Shortest window the timeline allows (about two weeks). */
+export const MIN_SPAN_YEARS = 1 / 24;
+
+/** Fit a window inside the domain: shift it in, shrink it only if it is wider. */
+export function clampWindow([a, b]: TimeWindow, [d0, d1]: TimeWindow): TimeWindow {
+  const width = Math.min(Math.max(b - a, MIN_SPAN_YEARS), d1 - d0);
+  const start = Math.min(Math.max(a, d0), d1 - width);
+  return [start, start + width];
+}
+
 /** A window that shows the event comfortably, keeping the current zoom when it fits. */
 export function windowAround(e: PlacedEvent, [a, b]: TimeWindow): TimeWindow {
   const width = Math.max(b - a, (e.t1 - e.t0) * 1.4);

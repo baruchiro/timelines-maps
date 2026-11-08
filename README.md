@@ -5,6 +5,7 @@ time, see what happened where. Hebrew UI, mobile-first, static site.
 
 ```sh
 npm ci
+npx playwright install chromium   # once, for the browser tests
 npm run dev      # http://localhost:5173
 npm run check    # typecheck, lint, story coverage, unit, build, browser tests
 ```

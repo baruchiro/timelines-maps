@@ -22,7 +22,8 @@ export function decodeState(search: string): ViewState {
   const layers = p.get("layers");
   if (layers !== null) state.layers = layers.split(",").filter((s) => /^[a-z0-9][a-z0-9-]*$/.test(s));
   const t = p.get("t")?.split(",").map(num);
-  if (t && t.length === 2 && t.every(Number.isFinite) && t[0] < t[1]) state.window = [t[0], t[1]];
+  // A window narrower than the timeline's minimum zoom (~2 weeks) is rejected, not applied.
+  if (t && t.length === 2 && t.every(Number.isFinite) && t[1] - t[0] >= 1 / 48) state.window = [t[0], t[1]];
   const m = p.get("map")?.split(",").map(num);
   if (
     m &&
@@ -41,9 +42,9 @@ export function encodeState(s: ViewState): string {
   const parts: string[] = [];
   if (s.layers) parts.push(`layers=${s.layers.join(",")}`);
   if (s.window) {
-    const digits = s.window[1] - s.window[0] < 5 ? 3 : 1;
-    parts.push(`t=${round(s.window[0], digits)},${round(s.window[1], digits)}`);
+    // 4 decimals of a year ≈ 1 hour: enough that a shared link shows the same events.
+    parts.push(`t=${round(s.window[0], 4)},${round(s.window[1], 4)}`);
   }
-  if (s.map) parts.push(`map=${round(s.map.lat, 2)},${round(s.map.lng, 2)},${round(s.map.zoom, 2)}`);
+  if (s.map) parts.push(`map=${round(s.map.lat, 5)},${round(s.map.lng, 5)},${round(s.map.zoom, 2)}`);
   return parts.length ? `?${parts.join("&")}` : "";
 }

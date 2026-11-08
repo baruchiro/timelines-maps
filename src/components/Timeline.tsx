@@ -3,7 +3,7 @@ import { select } from "d3-selection";
 import { zoom as d3zoom, zoomIdentity, type ZoomBehavior } from "d3-zoom";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { formatTime, ticks } from "../lib/dates";
-import type { PlacedEvent } from "../lib/events";
+import { MIN_SPAN_YEARS, type PlacedEvent } from "../lib/events";
 import type { LoadedLayer, TimeWindow } from "../lib/types";
 
 interface Props {
@@ -18,7 +18,6 @@ interface Props {
 const LANE = 6;
 const LANE_GAP = 3;
 const AXIS = 22;
-const MIN_SPAN_YEARS = 1 / 24; // about two weeks
 
 const close = (a: TimeWindow, b: TimeWindow) => {
   const eps = (a[1] - a[0]) * 1e-6;

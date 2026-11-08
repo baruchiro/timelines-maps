@@ -1,6 +1,6 @@
 // @story: MAP-2, MAP-4, TIME-2
 import { describe, expect, it } from "vitest";
-import { fullRange, nearestEvent, placeEvents, visibleEvents, windowAround } from "./events";
+import { clampWindow, fullRange, nearestEvent, placeEvents, visibleEvents, windowAround } from "./events";
 import type { LoadedLayer } from "./types";
 
 const layer: LoadedLayer = {
@@ -32,6 +32,13 @@ describe("fullRange", () => {
     expect(b).toBeGreaterThan(1945.4);
     expect(fullRange([])).toBeNull();
     expect(fullRange(events, 1950)![1]).toBe(1950);
+  });
+});
+
+describe("clampWindow", () => {
+  it("shifts a window back inside the domain, keeping its width", () => {
+    expect(clampWindow([90, 130], [0, 100])).toEqual([60, 100]);
+    expect(clampWindow([-50, 500], [0, 100])).toEqual([0, 100]);
   });
 });
 

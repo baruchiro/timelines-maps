@@ -4,7 +4,7 @@ import { LayerPanel } from "./components/LayerPanel";
 import { MapView } from "./components/MapView";
 import { Timeline } from "./components/Timeline";
 import { toAstronomical } from "./lib/dates";
-import { fullRange, nearestEvent, placeEvents, visibleEvents, windowAround } from "./lib/events";
+import { clampWindow, fullRange, nearestEvent, overlaps, placeEvents, visibleEvents, windowAround } from "./lib/events";
 import { ALL_LAYERS } from "./lib/layers";
 import type { LoadedLayer, TimeWindow } from "./lib/types";
 import { decodeState, encodeState, type MapView as MapViewState } from "./lib/url";
@@ -19,12 +19,13 @@ function rangeFor(layers: LoadedLayer[]): TimeWindow {
 function initialState() {
   const url = decodeState(window.location.search);
   const known = new Set(ALL_LAYERS.map((l) => l.id));
-  const selected = url.layers?.filter((id) => known.has(id)) ?? ALL_LAYERS.slice(0, 1).map((l) => l.id);
+  const fromUrl = url.layers?.filter((id) => known.has(id));
+  // `layers=` (empty) is a deliberate empty selection; unknown ids fall back to the default.
+  const selected =
+    fromUrl && (fromUrl.length > 0 || url.layers!.length === 0) ? fromUrl : ALL_LAYERS.slice(0, 1).map((l) => l.id);
   const domain = rangeFor(ALL_LAYERS.filter((l) => selected.includes(l.id)));
-  let win = url.window ?? domain;
-  // Clamp a shared window into what the selected layers can show.
-  win = [Math.max(win[0], domain[0]), Math.min(win[1], domain[1])];
-  if (win[0] >= win[1]) win = domain;
+  // Fit a shared window into what the selected layers can show.
+  const win = url.window ? clampWindow(url.window, domain) : domain;
   return { selected, window: win, map: url.map };
 }
 
@@ -41,6 +42,18 @@ export function App() {
   const domain = useMemo(() => rangeFor(layers), [layers]);
   const visible = useMemo(() => visibleEvents(events, timeWindow), [events, timeWindow]);
   const selectedEvent = visible.find((e) => e.key === selectedKey) ?? null;
+
+  // Every window change goes through here: an open card whose event leaves the period is closed for good.
+  const changeWindow = useCallback(
+    (w: TimeWindow) => {
+      setTimeWindow(w);
+      setSelectedKey((key) => {
+        const e = key ? events.find((x) => x.key === key) : undefined;
+        return e && overlaps(e, w) ? key : null;
+      });
+    },
+    [events],
+  );
   const nearest = visible.length === 0 ? nearestEvent(events, timeWindow) : null;
 
   const toggleLayer = useCallback(
@@ -49,6 +62,7 @@ export function App() {
       setSelected(next);
       // The timeline re-opens on the full range of whatever is now selected.
       setTimeWindow(rangeFor(ALL_LAYERS.filter((l) => next.includes(l.id))));
+      setSelectedKey(null);
     },
     [selected],
   );
@@ -100,7 +114,7 @@ export function App() {
               <>
                 <span>אין אירועים בתקופה הזו</span>
                 {nearest && (
-                  <button type="button" onClick={() => setTimeWindow(windowAround(nearest, timeWindow))}>
+                  <button type="button" onClick={() => changeWindow(clampWindow(windowAround(nearest, timeWindow), domain))}>
                     קפיצה אל {nearest.name}
                   </button>
                 )}
@@ -117,7 +131,7 @@ export function App() {
         )}
       </main>
 
-      <Timeline domain={domain} window={timeWindow} onWindowChange={setTimeWindow} layers={layers} events={events} />
+      <Timeline domain={domain} window={timeWindow} onWindowChange={changeWindow} layers={layers} events={events} />
 
       {sheetOpen && (
         <div className="sheet-backdrop" onClick={() => setSheetOpen(false)}>

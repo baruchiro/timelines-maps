@@ -69,10 +69,11 @@ export function formatRange(start: HDate, end?: HDate): string {
 
 /** Human label for a continuous time value, at year or month precision. */
 export function formatTime(t: number, precision: "year" | "month" = "year"): string {
-  const astro = Math.floor(t);
+  // A small epsilon keeps exact boundaries (1 Feb = 1944 + 1/12) from rounding down.
+  const astro = Math.floor(t + 1e-9);
   const year = fromAstronomical(astro);
   if (precision === "month") {
-    const month = Math.min(12, Math.floor((t - astro) * 12) + 1);
+    const month = Math.min(12, Math.floor((t - astro) * 12 + 1e-9) + 1);
     return `${monthName(month)} ${formatYear(year)}`;
   }
   return formatYear(year);

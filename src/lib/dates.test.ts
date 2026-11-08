@@ -17,6 +17,7 @@ describe("time model", () => {
     expect(formatRange({ year: -27 }, { year: 476 })).toBe('27 לפנה"ס – 476 לספירה');
     expect(formatTime(toAstronomical(-1) + 0.5)).toBe('1 לפנה"ס');
     expect(formatTime(1944.6, "month")).toBe("אוגוסט 1944 לספירה");
+    expect(formatTime(startOf({ year: 1944, month: 2 }), "month")).toBe("פברואר 1944 לספירה");
   });
 });
 
