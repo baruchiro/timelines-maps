@@ -225,5 +225,11 @@ npx playwright install chromium   # skip where a browser is preinstalled
 npm run check
 ```
 
-In Claude Code on the web, Chromium is preinstalled and `@playwright/test`
-is pinned to the matching version (1.63), so no browser download is needed.
+The browser tests need Playwright's own Chromium (`npx playwright install
+chromium`). To use a Chromium installed elsewhere instead, point
+`PW_CHROMIUM_PATH` at a compatible executable — `playwright.config.ts` passes
+it as `executablePath`.
+
+In Claude Code on the web, Playwright's Chromium is already in its cache and
+`@playwright/test` is pinned to the matching version (1.63), so no download is
+needed.
